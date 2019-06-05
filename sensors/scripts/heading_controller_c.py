@@ -80,7 +80,7 @@ class Controller:
 
     def dheading_callback(self, d_heading):
         self.psi_d = d_heading.data
-	#rospy.logwarn("psi_d %f", self.psi_d)
+        #rospy.logwarn("psi_d %f", self.psi_d)
 
     def dthrust_callback(self, d_thrust):
         self.tx_d = d_thrust.data
@@ -121,7 +121,7 @@ class Controller:
         if (math.fabs(self.error_psi)) < 0.015:
             self.error_psi = 0
         self.degree_error = math.degrees(self.error_psi)
-        #rospy.logwarn("psi error %f", self.degree_error)
+        rospy.logwarn("psi error %f", self.degree_error)
 
         self.epsilon_psi = (self.k1)*(self.error_psi) - (self.k2)*(self.r)
         #rospy.logwarn("epsilon psi %f", self.epsilon_psi)
@@ -134,7 +134,7 @@ class Controller:
             self.T_z = self.T_z * .7
         if math.fabs(self.error_psi) > 0.3:
             self.T_z = self.T_z * .8
-        #rospy.logwarn("Tz %f", self.T_z)
+        rospy.logwarn("Tz %f", self.T_z)
 
         self.T_x = tx_d
         if math.fabs(self.error_psi) > 0.3:
@@ -157,6 +157,10 @@ class Controller:
         elif self.T_stbd < -30:
             self.T_stbd = -20
 
+        if self.T_x = 0:
+            self.T_stbd = 0
+            self.T_port = 0
+
 #Controller outputs
         self.right_thruster_pub.publish(self.T_stbd)
         self.left_thruster_pub.publish(self.T_port)
@@ -172,11 +176,8 @@ def main():
     C = Controller()
     C.start_pose
     while C.activated:
-        try:
-            C.run(C.tx_d, C.psi_d)
-            time.sleep(0.1)
-        except KeyboardInterrupt:
-            break
+        C.run(C.tx_d, C.psi_d)
+        time.sleep(0.1)
     rospy.spin()
 if __name__ == "__main__":
     try:

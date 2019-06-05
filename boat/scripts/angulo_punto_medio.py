@@ -21,61 +21,62 @@ theta_imu = 0
 
 
 
+
 def punto_medio(distances, boxes,Ys):
 
-	idx1 = np.argsort(distances)[0]
-	idx2 = np.argsort(distances)[1]
-	
-	z1 = distances[idx1]
-	
-	y1 = -1*Ys[idx1]
+    idx1 = np.argsort(distances)[0]
+    idx2 = np.argsort(distances)[1]
+    
+    z1 = distances[idx1]
+    
+    y1 = -1*Ys[idx1]
 
-	z2 = distances[idx2]
-	
-	y2 = -1*Ys[idx2]
-	
-	zc = min([z1,z2]) + abs(z1 - z2)/2
-	yc = min([y1,y2]) + abs(y1 - y2)/2
-	
-	offset = .55
-	
-	yc = 0.00001 if yc == 0 else yc
+    z2 = distances[idx2]
+    
+    y2 = -1*Ys[idx2]
+    
+    zc = min([z1,z2]) + abs(z1 - z2)/2
+    yc = min([y1,y2]) + abs(y1 - y2)/2
+    
+    offset = .55
+    
+    yc = 0.00001 if yc == 0 else yc
 
-	ang = math.atan((zc+offset)/yc)
-	ang_rad = ang
-	ang = math.degrees(ang)
-	
-	print(z1,y1)
-	print(z2,y2)
-	print(zc,yc)
-	
-	if ang < 0:
-		ang = -1*(ang + 90)
-	else:
-		ang = 90 - ang
-	
-	ang_rad = math.radians(ang)
-	
-	
-	print(ang)
-	global theta_imu
-	
-	ang_final = ang_rad + theta_imu
-	
-	
-	angulo_pub.publish(ang_final)
-	
-	plt.clf()
-	plt.plot(y1,z1, 'go',markersize=5)
-	plt.plot(y2,z2, 'go',markersize=5)
-	plt.plot(0,0,'ro')
-	plt.plot(yc,zc,'r*')
-	plt.axis([-5, 5, 0, 8])
-	plt.pause(0.0001)
-	plt.draw()
-	
+    ang = math.atan((zc+offset)/yc)
+    ang_rad = ang
+    ang = math.degrees(ang)
+    
+    print(z1,y1)
+    print(z2,y2)
+    print(zc,yc)
+    
+    if ang < 0:
+        ang = -1*(ang + 90)
+    else:
+        ang = 90 - ang
+    
+    ang_rad = math.radians(ang)
+    
+    
+    print(ang)
+    global theta_imu
+    
+    ang_final = ang_rad + theta_imu
+    
+    
+    angulo_pub.publish(ang_final)
+    
+    plt.clf()
+    plt.plot(y1,z1, 'go',markersize=5)
+    plt.plot(y2,z2, 'go',markersize=5)
+    plt.plot(0,0,'ro')
+    plt.plot(yc,zc,'r*')
+    plt.axis([-5, 5, 0, 8])
+    plt.pause(0.0001)
+    plt.draw()
+    
 points_list = []
-	
+    
 
 def ins_pose_callback(pose):
     global theta_imu

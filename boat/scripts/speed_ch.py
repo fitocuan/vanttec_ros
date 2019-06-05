@@ -29,7 +29,7 @@ class Speed_Challenge:
         self.lat = 0
         self.lon = 0
         
-
+        
         rospy.Subscriber('/objects_detected', ObjDetectedList, self.callback)
         rospy.Subscriber("ins_pose", Pose2D, self.ins_pose_callback)
 

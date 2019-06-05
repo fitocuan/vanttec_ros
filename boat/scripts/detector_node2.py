@@ -103,7 +103,7 @@ class Detection_Node:
         detect = True
         fps = FPS().start()
         boxes, confidences, indices, cls_ids, colors, ids, distances = [], [], [], [], [], [], []
-        zed_cam_size = 672
+        zed_cam_size = 1280
 
         ret = True
         while not rospy.is_shutdown():
@@ -139,8 +139,7 @@ class Detection_Node:
             boxes, confidences, indices, cls_ids = det.get_detections(net, frame)
             # Publish detections
             
-            det_str = "Det: {}, BBoxes {}, Colors {}, Distance {}".format(dets, boxes, colors, distances)
-            self.send_message(Color.BLUE, det_str)
+            
 
             # If there were any previous detections, draw them
             colors = []
@@ -157,11 +156,25 @@ class Detection_Node:
 
                 if detect == True:
                     color = self.calculate_color(frame,x,y,h,w)
+                    print(zed_cam_size)
+
                     p1= int((x+w/2)*zed_cam_size/1000) #1.28 hd
                     p2= int((y+h/2)*zed_cam_size/1000)
                 
                     #1280 si es HD , 672
-                    dist = self.points_list[(p1+p2*zed_cam_size)][0]
+
+                    ind = p1+p2*zed_cam_size
+
+                    d_list = self.points_list[ind-15:ind+15]
+                    d_list = [item[0] for item in d_list]
+                    #print(d_list)
+                    dist = np.mean(d_list)
+                    #print(d_list)
+                    #print(ind)
+                    #print(np.mean(self.points_list[ind-15:ind+15]))
+
+
+                    #dist = np.mean(self.points_list[ind][0])
 
                     if (dist < .30):
                         diststring = "OUT OF RANGE"
@@ -173,10 +186,10 @@ class Detection_Node:
                     distances.append(dist)
                 
 
-                
+                    
                 
                     obj = ObjDetected()
-                    print(p1,p2)
+                    #print(p1,p2)
                     obj.x = x
                     obj.y = y
                     obj.h = h
@@ -190,6 +203,9 @@ class Detection_Node:
 
                             
                     det.draw_prediction(frame, cls_ids[i], confidences[i], color,diststring, x, y, x+w, y+h)
+
+            det_str = "Det: {}, BBoxes {}, Colors {}, Distance {}".format(dets, boxes, colors, distances)
+            self.send_message(Color.BLUE, det_str)
             fps.update()
             obj_list.len = len_list
             self.detector_pub.publish(obj_list)
@@ -206,10 +222,10 @@ class Detection_Node:
                 cv2.putText(frame, text, (10, det.get_h() - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
             # Show current frame
-            cv2.imshow("Frame", frame)
+            #cv2.imshow("Frame", frame)
             #print(self.depth)
         
-            cv2.waitKey(3)
+            #cv2.waitKey(3)
             rate.sleep()        
         
 

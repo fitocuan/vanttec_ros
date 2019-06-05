@@ -3,27 +3,44 @@
 
 from flask import Flask
 from std_msgs.msg import String
+from std_msgs.msg import Int32
+
+
 import rospy
 import subprocess
 import os
 
 
-rospy.init_node('station_rec', anonymous=True)
-#pub = rospy.Publisher('/station', String, queue_size=10)
-#rospy.Subscriber("status", Float64, self.dspeed_callback)
+def status_callback(msg):
+    global status
+    status = msg.data
+    print(status)
+
+rospy.init_node('status', anonymous=True)
+pub = rospy.Publisher('/course', String, queue_size=10)
+rospy.Subscriber("status", Int32, status_callback)
+#subprocess.Popen("roslaunch zed_wrapper zed.launch", shell = True)
 
 app = Flask("Py2_Server")
+
+
+
 
 
 @app.route("/")
 def index():
     return 'Index Page'
 
-@app.route("/AutonomousNavigation")
-def receive_autonomous_navigation():
-    #pub.publish("AutonomousNavigation")
-    subprocess.Popen("rosrun sensors gps_navigation.py", shell = True)
-    return "Launching Rostopic AutonomousNavigation"
+@app.route("/A")
+def receive_A():
+    global status
+    pub.publish("A")
+    subprocess.Popen("rosrun boat auto_nav.py", shell = True)
+    while status == 0:
+        print("auto_nav working")
+    subprocess.Popen("rosnode kill /auto_nav", shell = True)
+    print("auto_nav_finish")
+    return "Launching Rostopic A"
 
 @app.route("/FindThePath")
 def receive_find_the_path():
@@ -32,10 +49,6 @@ def receive_find_the_path():
 
 @app.route("/SpeedChallenge")
 def receive_speed_challenge():
-    s = 'rostopic pub /waypoints std_msgs/Float32MultiArray "layout: dim: - label: '' size: 0 stride: 0 data_offset: 6 data: [1.0,1.0,2.0,2.0,3.0,3.0]"'
-    s = s.split(' ')
-    print(s)
-    subprocess.Popen(s, shell = True)
     return "Launching Rostopic SpeedChallenge"
 
 @app.route("/RaiseTheFlag")
@@ -57,6 +70,10 @@ def receive_teleop():
 
 
 if __name__ == '__main__':
+    global status
+    status = 0
+    subprocess.Popen("roslaunch boat general.launch", shell = True)
+    #subprocess.Popen("roslaunch zed_wrapper zed.launch", shell = True)
     app.run(debug=True)
 
 

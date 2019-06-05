@@ -15,27 +15,46 @@ class evadir_objectos:
     def __init__(self):
         self.bridge = CvBridge()
         self.depth = np.zeros((560,1000,3),np.uint8)
+        self.img2 = np.zeros((560,1000,3),np.uint8)
         rospy.Subscriber("/zed/depth/depth_registered", Image, self.callback_zed_depth)
+        #rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_img)
+
         self.pub = rospy.Publisher('/obstacles', String, queue_size=10)
         #rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_depth)
 
 
 
-
+    #def callback_zed_img(self,img):
+    #    self.img2 = self.bridge.imgmsg_to_cv2(img)
 
     def callback_zed_depth(self,img):
         img = self.bridge.imgmsg_to_cv2(img)
         H, W = img.shape[:2]
-        y = (H/5)*2
+
+        
+        y = (H/5)*3
         x = W/4
         h = (H/5)
         w = (W/4)*2
+        '''
+
+        y = (H/5)*3
+        x = 0
+        h = (H/5)
+        w = (W)
+        '''
 
 
-        
-        ret,img = cv2.threshold(img,3,255,cv2.THRESH_BINARY)
-        
+        #self.img2 = self.img2[y:y+h,x:x+w]
         img = img[y:y+h,x:x+w]
+        #img2 = self.img2
+        img = np.nan_to_num(img)
+
+        #ret,img2 = cv2.threshold(img,1.7,255,cv2.THRESH_BINARY)
+        img = cv2.inRange(img,1.5,2)
+        img = cv2.bitwise_not(img)
+
+        
 
 
         H, W = img.shape[:2]
@@ -59,8 +78,9 @@ class evadir_objectos:
         print(ret)
         self.pub.publish(ret)
 
-        cv2.imshow("a", img)
-        cv2.waitKey(3)
+        #cv2.imshow("a", img)
+        #cv2.imshow("aa", img2)
+        #cv2.waitKey(3)
         self.depth = img
         
 

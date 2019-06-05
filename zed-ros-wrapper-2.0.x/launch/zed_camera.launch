@@ -11,7 +11,7 @@
     <!-- ZED parameters -->
     <param name="zed_id"                value="$(arg zed_id)" />
 
-    <param name="resolution"            value="3" />
+    <param name="resolution"            value="2" />
     <param name="quality"               value="1" />
     <param name="sensing_mode"          value="0" />
     <param name="frame_rate"            value="60" />
