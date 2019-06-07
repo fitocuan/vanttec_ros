@@ -187,19 +187,19 @@ class Detection_Node:
                 
 
                     
-                
-                    obj = ObjDetected()
-                    #print(p1,p2)
-                    obj.x = x
-                    obj.y = y
-                    obj.h = h
-                    obj.w = w
-                    obj.X = self.points_list[(p1+p2*zed_cam_size)][0]
-                    obj.Y = self.points_list[(p1+p2*zed_cam_size)][1]
-                    obj.color = color
-                    obj.clase = 'bouy' if cls_ids[i] == 0 else 'marker'
-                    len_list += 1
-                    obj_list.objects.append(obj)
+                    if self.points_list[(p1+p2*zed_cam_size)][0] < 10 and self.points_list[(p1+p2*zed_cam_size)][0] != 'nan':
+                        obj = ObjDetected()
+                        #print(p1,p2)
+                        obj.x = x
+                        obj.y = y
+                        obj.h = h
+                        obj.w = w
+                        obj.X = self.points_list[(p1+p2*zed_cam_size)][0]
+                        obj.Y = self.points_list[(p1+p2*zed_cam_size)][1]
+                        obj.color = color
+                        obj.clase = 'bouy' if cls_ids[i] == 0 else 'marker'
+                        len_list += 1
+                        obj_list.objects.append(obj)
 
                             
                     det.draw_prediction(frame, cls_ids[i], confidences[i], color,diststring, x, y, x+w, y+h)
@@ -222,10 +222,10 @@ class Detection_Node:
                 cv2.putText(frame, text, (10, det.get_h() - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
             # Show current frame
-            #cv2.imshow("Frame", frame)
+            cv2.imshow("Frame", frame)
             #print(self.depth)
         
-            #cv2.waitKey(3)
+            cv2.waitKey(3)
             rate.sleep()        
         
 

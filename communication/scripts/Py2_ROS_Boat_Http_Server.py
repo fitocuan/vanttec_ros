@@ -36,7 +36,7 @@ def receive_A():
     global status
     pub.publish("A")
     subprocess.Popen("rosrun boat auto_nav.py", shell = True)
-    while status == 0:
+    while status != 1:
         print("auto_nav working")
 
     nodo =  subprocess.check_output("rosnode list | grep /auto", shell = True)
@@ -47,9 +47,26 @@ def receive_A():
     print("auto_nav_finish")
     return "Launching Rostopic A"
 
-@app.route("/FindThePath")
+@app.route("/B")
 def receive_find_the_path():
-    return "Launching Rostopic FindThePath"
+    global status
+    subprocess.Popen("rosrun boat speed_ch.py", shell = True)
+    subprocess.Popen("rosrun sensors gps_navigation.py", shell = True)
+
+    while status != 1:
+        print("speed_ch working")
+
+    nodo =  subprocess.check_output("rosnode list | grep /speed_ch", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
+    
+    nodo =  subprocess.check_output("rosnode list | grep /gps_navigation", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
+
+    status = 0
+
+    return "Launching Rostopic B"
 
 @app.route("/SpeedChallenge")
 def receive_speed_challenge():

@@ -137,8 +137,8 @@ class Auto_Nav:
 
 
         
-        if self.ang = 1:
-            if self.ang_change < .5 :
+        if self.ang == 1:
+            if self.ang_change < .22 :
                 self.ang_change = self.ang_change + delta
                 self.desired(self.tx, self.theta_imu - delta)
             else:
@@ -146,7 +146,7 @@ class Auto_Nav:
                 self.ang = -1
 
         else:
-            if self.ang_change < .5 :
+            if self.ang_change < .22 :
                 self.ang_change = self.ang_change + delta
                 self.desired(self.tx, self.theta_imu + delta)
             else:

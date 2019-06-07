@@ -9,6 +9,8 @@ from geometry_msgs.msg import Pose2D
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 import numpy as np
+from std_msgs.msg import Int32
+
 
 EARTH_RADIUOS = 6371000
 
@@ -35,6 +37,8 @@ class Navigate:
         self.wp_sent = False
         self.counter = 0
 
+        self.choicer = 0
+
 
         self.reference_heading = 0
 
@@ -46,6 +50,8 @@ class Navigate:
 
         self.d_thrust_pub = rospy.Publisher("desired_thrust", Float64, queue_size=10)
         self.d_heading_pub = rospy.Publisher("desired_heading", Float64, queue_size=10)
+        self.pub_status = rospy.Publisher("status", Int32, queue_size=10)
+
 
 
 
@@ -157,8 +163,9 @@ class Navigate:
 
     def waypoints_callback(self, msg):
         wp_t = []
-
-        for i in range(msg.layout.data_offset ):
+        choicer , leng = math.modf(msg.layout.data_offset)
+        self.choicer = choicer * 10
+        for i in range(leng):
             wp_t.append(msg.data[i])
         
         self.wp_array = wp_t
@@ -180,7 +187,11 @@ def main():
             lat2 = navi.latitude
             lon2 = navi.longitude
             for i in range(0,len(wp_t),2):
-                wp_lat, wp_lon = navi.gps_point_trans(wp_t[i],wp_t[i+1], jaw, lat2,lon2)
+                if E.choicer == 0:
+                    wp_lat, wp_lon = navi.gps_point_trans(wp_t[i],wp_t[i+1], jaw, lat2,lon2)
+                else:
+                    wp_lat, wp_lon = wp_t[i], wp_t[i+1]
+
                 while navi.navigate:
                     
                     print(wp_lat, wp_lon)
@@ -192,7 +203,9 @@ def main():
                 if wp_t != navi.wp_array:
                         break
                 navi.navigate = True
-                rospy.logwarn("Arrived")
+                #rospy.logwarn("Arrived")
+
+        navi.pub_status.publish(1)
 
 
     rospy.spin()
