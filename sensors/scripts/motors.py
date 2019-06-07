@@ -40,11 +40,11 @@ class Motors:
 
     def right_callback(self, right_t):
         self.powerR = right_t.data
-        rospy.logwarn(self.powerR)
+        #rospy.logwarn(self.powerR)
 
     def left_callback(self, left_t):
         self.powerL = left_t.data
-        rospy.logwarn(self.powerL)
+        #rospy.logwarn(self.powerL)
 
     #format value to proper length
     def check_value_size(self, val):

@@ -19,7 +19,7 @@ def status_callback(msg):
 rospy.init_node('status', anonymous=True)
 pub = rospy.Publisher('/course', String, queue_size=10)
 rospy.Subscriber("status", Int32, status_callback)
-#subprocess.Popen("roslaunch zed_wrapper zed.launch", shell = True)
+#subprocess.Popen("roslaunch boat general.launch", shell = True)
 
 app = Flask("Py2_Server")
 
@@ -38,13 +38,17 @@ def receive_A():
     subprocess.Popen("rosrun boat auto_nav.py", shell = True)
     while status == 0:
         print("auto_nav working")
-    subprocess.Popen("rosnode kill /auto_nav", shell = True)
+
+    nodo =  subprocess.check_output("rosnode list | grep /auto", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
+    
+    status = 0
     print("auto_nav_finish")
     return "Launching Rostopic A"
 
 @app.route("/FindThePath")
 def receive_find_the_path():
-    subprocess.Popen("rosnode kill /GPS_navigation", shell = True)
     return "Launching Rostopic FindThePath"
 
 @app.route("/SpeedChallenge")
@@ -72,8 +76,6 @@ def receive_teleop():
 if __name__ == '__main__':
     global status
     status = 0
-    subprocess.Popen("roslaunch boat general.launch", shell = True)
-    #subprocess.Popen("roslaunch zed_wrapper zed.launch", shell = True)
     app.run(debug=True)
 
 

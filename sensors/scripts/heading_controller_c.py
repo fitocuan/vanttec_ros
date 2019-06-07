@@ -121,7 +121,7 @@ class Controller:
         if (math.fabs(self.error_psi)) < 0.015:
             self.error_psi = 0
         self.degree_error = math.degrees(self.error_psi)
-        rospy.logwarn("psi error %f", self.degree_error)
+        #rospy.logwarn("psi error %f", self.degree_error)
 
         self.epsilon_psi = (self.k1)*(self.error_psi) - (self.k2)*(self.r)
         #rospy.logwarn("epsilon psi %f", self.epsilon_psi)
@@ -134,7 +134,7 @@ class Controller:
             self.T_z = self.T_z * .7
         if math.fabs(self.error_psi) > 0.3:
             self.T_z = self.T_z * .8
-        rospy.logwarn("Tz %f", self.T_z)
+        #rospy.logwarn("Tz %f", self.T_z)
 
         self.T_x = tx_d
         if math.fabs(self.error_psi) > 0.3:
@@ -157,7 +157,7 @@ class Controller:
         elif self.T_stbd < -30:
             self.T_stbd = -20
 
-        if self.T_x = 0:
+        if self.T_x == 0:
             self.T_stbd = 0
             self.T_port = 0
 

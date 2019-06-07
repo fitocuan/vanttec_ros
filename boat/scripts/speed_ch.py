@@ -28,10 +28,22 @@ class Speed_Challenge:
         self.theta_imu = 0
         self.lat = 0
         self.lon = 0
+        self.current = lambda: int(round(time.time()*1000))
+        self.InitTime = self.current()
         
         
         rospy.Subscriber('/objects_detected', ObjDetectedList, self.callback)
         rospy.Subscriber("ins_pose", Pose2D, self.ins_pose_callback)
+
+
+
+    def curr_time(self):
+        curTime = self.current()
+        difTime = curTime - self.InitTime
+        realTime = difTime/float(1000)
+        timer = '{:.3f}'.format(realTime)
+        return float(timer)
+
 
     def ins_pose_callback(self, data):
         self.theta_imu = data.theta
@@ -117,7 +129,9 @@ class Speed_Challenge:
         for i in range(data.len):
             self.obj_list.append({'X' : data.objects[i].X, 'Y' : data.objects[i].Y, 'color' : data.objects[i].color, 'class' : data.objects[i].clase})
 
-
+    def straight(self):
+        self.tx = 10
+        self.desired(self.tx, self.theta_imu)
 
     
 if __name__ == '__main__':
@@ -131,6 +145,12 @@ if __name__ == '__main__':
             if len(E.obj_list) >= 2:
                 
                 E.punto_medio()
+            else:
+                initTime = E.curr_time()
+                while len(E.obj_list) < 2:
+                    if E.curr_time() - initTime > 3:
+                        E.state = 1
+                        break
                 
         if E.state == 1:
             

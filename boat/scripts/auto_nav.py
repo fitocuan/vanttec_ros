@@ -23,7 +23,6 @@ import matplotlib.pyplot as plt
 
 theta_imu = 0
 
-
 class Auto_Nav:
     def __init__(self):
 
@@ -35,6 +34,11 @@ class Auto_Nav:
         self.ang = 0
         self.tx = 0
         self.distance = 0
+        self.current = lambda: int(round(time.time()*1000))
+        self.InitTime = self.current()
+        self.ang_change = 0
+
+
 
         rospy.Subscriber("ins_pose", Pose2D, self.ins_pose_callback)
         rospy.Subscriber('/objects_detected', ObjDetectedList, self.objs_callback)
@@ -44,6 +48,12 @@ class Auto_Nav:
         self.test = rospy.Publisher("test", Int32, queue_size=10)
 
 
+    def curr_time(self):
+        curTime = self.current()
+        difTime = curTime - self.InitTime
+        realTime = difTime/float(1000)
+        timer = '{:.3f}'.format(realTime)
+        return float(timer)
 
     def punto_medio(self):
 
@@ -86,11 +96,22 @@ class Auto_Nav:
         
         
         #print(ang)
-        
+        self.ang = -1 if ang_rad < 0 else 1
+
         ang_final = ang_rad + self.theta_imu
         
 
-        self.angulo_pub.publish(ang_final)
+        #self.angulo_pub.publish(ang_final)
+        self.tx = 10
+        if self.distance < 7:
+            self.tx = 7
+        if self.distance < 0.5:
+            self.tx = 0
+
+        #self.d_thrust_pub.publish(self.tx)
+
+        if abs(z1 - z2) <= 5:
+            self.desired(self.tx, ang_final)
         '''
         plt.clf()
         plt.plot(y1,z1, 'go',markersize=5)
@@ -103,18 +124,38 @@ class Auto_Nav:
         '''
 
     def straight(self):
-        self.angulo_pub.publish(self.theta_imu)
-
-    def look_finding(self):
         self.tx = 10
-        if self.distance < 7:
-            self.tx = 7
-        if self.distance < 0.5:
-            self.tx = 0
 
-        self.d_thrust_pub.publish(self.tx)
-        delta = .17 if self.theta_imu < 0 else -.17
-        self.angulo_pub.publish(self.theta_imu + delta)
+        self.desired(self.tx, self.theta_imu)
+
+    def look_finding(self, curr_angle):
+
+        #.1 = 6 grados
+
+        self.tx = 5
+        delta = .1
+
+
+        
+        if self.ang = 1:
+            if self.ang_change < .5 :
+                self.ang_change = self.ang_change + delta
+                self.desired(self.tx, self.theta_imu - delta)
+            else:
+                self.ang_change = 0
+                self.ang = -1
+
+        else:
+            if self.ang_change < .5 :
+                self.ang_change = self.ang_change + delta
+                self.desired(self.tx, self.theta_imu + delta)
+            else:
+                self.ang_change = 0
+                self.ang = 1
+
+        
+
+        time.sleep(2)
 
     def ins_pose_callback(self,pose):
         self.theta_imu = pose.theta
@@ -126,6 +167,9 @@ class Auto_Nav:
             self.obj_list.append({'X' : data.objects[i].X, 'Y' : data.objects[i].Y, 'color' : data.objects[i].color, 'class' : data.objects[i].clase})
 
 
+    def desired(self, thrust, heading):
+        self.angulo_pub.publish(heading)
+        self.d_thrust_pub.publish(thrust)
 
 
     
@@ -133,13 +177,8 @@ if __name__ == '__main__':
 
     rospy.init_node('auto_nav', anonymous=True)
     rate = rospy.Rate(10)
-
     E = Auto_Nav()
-
-    time.sleep(1)
-
     
-    c = 0
     while E.activated:
         print(E.state)
 
@@ -147,11 +186,13 @@ if __name__ == '__main__':
             E.test.publish(0)
             if len(E.obj_list) >= 2:
                 E.punto_medio()
-                c = 0
             else:
-                c = c + 1
-            if c > 1000:
-                E.state = 1
+                initTime = E.curr_time()
+                while len(E.obj_list) < 2:
+                    if E.curr_time() - initTime > 3:
+                        E.state = 1
+                        curr_angle = E.theta_imu
+                        break
         
         if E.state == 1:
             E.test.publish(1)
@@ -159,25 +200,29 @@ if __name__ == '__main__':
             time.sleep(3)
             E.state = 2
 
+
         if E.state == 2:
             E.test.publish(2)
             if len(E.obj_list) >= 2:
                 E.state = 3
             else:
-                E.look_finding()
+                E.look_finding(curr_angle)
 
         if E.state == 3:
             E.test.publish(3)
             if len(E.obj_list) >= 2:
                 E.punto_medio()
-                c = 0
             else:
-                c = c + 1
-            if c > 1000:
-                E.state = 4
+                initTime = E.curr_time()
+                while len(E.obj_list) < 2:
+                    if E.curr_time() - initTime > 3:
+                        E.state = 4
+                        break
 
         if E.state == 4:
             E.test.publish(4)
+            E.desired(0,E.theta_imu)
+            time.sleep(1)
             E.status_pub.publish(1)
             print('Fin')
 

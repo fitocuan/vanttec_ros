@@ -161,7 +161,6 @@ class Navigate:
         for i in range(msg.layout.data_offset ):
             wp_t.append(msg.data[i])
         
-        
         self.wp_array = wp_t
 
         
