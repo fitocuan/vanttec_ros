@@ -54,7 +54,7 @@ class path_map{
 public:
 	path_map(){
 		ros::NodeHandle n;
-		pub = n.advertise<std_msgs::Float32MultiArray>("waypoints", 10);
+		pub = n.advertise<std_msgs::Float32MultiArray>("path_waypoints", 10);
 
    //ROS Publishers for each required sensor data
    		obstaculos_sub = n.subscribe("objects_detected", 10, &path_map::obstaculosCallback, this);
@@ -62,37 +62,12 @@ public:
 	}
 	void obstaculosCallback(const custom_msgs::ObjDetectedList::ConstPtr& msg ) {
 		//Parse arguments
-		/*
-		po::options_description description("Usage");
-		description.add_options()
-			("help", "Program usage.")
-			("inpath", po::value<string>()->default_value("/home/fitocuan/catkin_ws/src/map_image/maps/map1.png"), "Path to input file.")
-			("dilation", po::value<int>()->default_value(10), "Size of dilation kernel. ");
-		po::variables_map opts;
-		po::store(po::command_line_parser(argc, argv).options(description).run(), opts);
-		try {
-			po::notify(opts);
-		} catch (exception& e) {
-			cerr << "Error: " << e.what() << endl;
-			return 1;
-		}
-		if (opts.count("help")) {
-			cout << description;
-			return 1;
-		}
-		string input_path = opts["inpath"].as<string>();
-		int dilation = opts["dilation"].as<int>();
-
-		*/
 
 		length=0;
 	    length=msg->len;
 
 
 	    ROS_INFO("length: %i",length);
-
-	 
-
 
 	   Mat A;
 
@@ -102,33 +77,42 @@ public:
 
 	    float Yactual=0;
 	    float Xactual = 0;
+	    int X_marker = 80;
+	    int Y_marker = 50;
 	    
 	    ROS_INFO("length: %i",length);
 	    
 	    for (int i = 0; i<(length); i++)
 	    {
 	        
-	        
-	        Xactual=msg->objects[i].X*50+12.5;
-	        Yactual = msg->objects[i].Y*-50+500;
-	        ROS_INFO("Xm: %f",msg->objects[i].X);
-	        ROS_INFO("Ym: %f",msg->objects[i].Y);
-	        ROS_INFO("Xactual: %f",Xactual);
-	        ROS_INFO("Yactual: %f",Yactual);
-	        ROS_INFO("j: %i",i);
+	        if(msg->objects[i].clase == "marker" && msg->objects[i].X <= 8){
+	        	X_marker = msg->objects[i].X*50+12.5;
+	        	Y_marker = msg->objects[i].Y*-50+500;
+	        }
+	        else{
+	        	Xactual=msg->objects[i].X*50+12.5;
+		        Yactual = msg->objects[i].Y*-50+500;
+		        ROS_INFO("Xm: %f",msg->objects[i].X);
+		        ROS_INFO("Ym: %f",msg->objects[i].Y);
+		        ROS_INFO("Xactual: %f",Xactual);
+		        ROS_INFO("Yactual: %f",Yactual);
+		        ROS_INFO("j: %i",i);
 
-	        cv::circle( A, cv::Point( Xactual, Yactual ), 12.5, cv::Vec3b(0, 0, 0), -1, 8 ); 
+		        cv::circle( A, cv::Point( Xactual, Yactual ), 12.5, cv::Vec3b(0, 0, 0), -1, 8 );
+	        }
+	        
+	         
 	        //S_INFO("Xactual: %f",Xactual);
 	        //S_INFO("Yactual: %f",Yactual);
 	        //boxes[i]=(msg->objects[i].x,msg->objects[i].y,msg->objects[i].w,msg->objects[i].h);//boxes.append([data.objects[i].x,data.objects[i].y,data.objects[i].w,data.objects[i].h]);
 	     }   
 
 
-		string input_path = "/home/fitocuan/catkin_ws/src/map_image/maps/map1.png";
-		Mat input_map1 = imread(input_path, cv::IMREAD_COLOR);
+		//string input_path = "/home/fitocuan/catkin_ws/src/map_image/maps/map1.png";
+		//Mat input_map1 = imread(input_path, cv::IMREAD_COLOR);
 		
-		MatType(A);
-		MatType(input_map1);
+		//MatType(A);
+		//MatType(input_map1);
 
 
 		
@@ -163,7 +147,7 @@ public:
 		cout << "[INFO] Setting source and destination..." << endl;
 		Planner::PathGenerator astar;
 		astar.set_src({50, 0});
-		astar.set_dst({50, 80});
+		astar.set_dst({Y_marker, X_marker});
 		cout << "[DONE]" << endl;	
 
 
@@ -181,13 +165,15 @@ public:
 		else {
 			int count = 0;
 			std_msgs::Float32MultiArray path_msg;
+			path_msg.data.push_back(length);
+
 			while(!path_to_send.empty()) {
 				count++;
 				path_msg.data.push_back(path_to_send.top());
 				path_to_send.pop();
 			}
-
-			path_msg.layout.data_offset = (count);
+			path_msg.data.push_back(length);
+			path_msg.layout.data_offset = count;
 			pub.publish(path_msg);
 
 			map.print_world();

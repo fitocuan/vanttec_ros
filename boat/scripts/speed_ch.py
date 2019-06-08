@@ -233,7 +233,7 @@ if __name__ == '__main__':
             E.state = 3
 
         if E.state == 3:
-            if len(E.obj_list) == 1:
+            if len(E.obj_list) == 1 and E.obj_list[0]['class'] == 'bouy':
                 E.state = 3
             else:
                 E.look_finding(curr_angle)
