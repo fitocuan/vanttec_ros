@@ -5,7 +5,7 @@ from flask import Flask
 from std_msgs.msg import String
 from std_msgs.msg import Int32
 
-
+import time
 import rospy
 import subprocess
 import os
@@ -68,21 +68,60 @@ def receive_find_the_path():
 
     return "Launching Rostopic B"
 
-@app.route("/SpeedChallenge")
-def receive_speed_challenge():
-    return "Launching Rostopic SpeedChallenge"
+@app.route("/C")
+def receive_C():
+    global status
+    subprocess.Popen("rosrun sensors gps_navigation.py", shell = True)
+    time.sleep(1)
+    cmd = '''
+rostopic pub /waypoints std_msgs/Float32MultiArray "layout:
+  dim:                                                     
+  - label: ''
+    size: 0
+    stride: 0
+  data_offset: 6.0                                  
+data: [0.0,3.0,3.0,3.0,3.0,0.0]" 
+'''
+    subprocess.Popen(cmd, shell = True)
+    while status != 1:
+        pass
 
-@app.route("/RaiseTheFlag")
-def receive_raise_the_flag():
-    return "Launching Rostopic RaiseTheFlag"
+    nodo =  subprocess.check_output("rosnode list | grep /rostopic", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
+    nodo =  subprocess.check_output("rosnode list | grep /gps_navigation", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
 
-@app.route("/AutomatedDocking")
-def receive_automated_docking():
-    return "Launching Rostopic AutomatedDocking" 
+
+    return "Launching Rostopic C"
+
+@app.route("/K")
+def receive_K():
+    cmd = '''  rostopic pub /desired_thrust std_msgs/Float64 "data: 0.0" '''
+    subprocess.Popen(cmd, shell = True)
+
+    return "Launching Rostopic K"
+
+@app.route("/D")
+def receive_D():
+    cmd = '''  rostopic pub /desired_thrust std_msgs/Float64 "data: 10.0" '''
+    subprocess.Popen(cmd, shell = True)
+    return "Launching Rostopic D" 
     
-@app.route("/GPSNavigation")
-def receive_GPS_navigation():
-    return "Launching Rostopic GPSNavigation"
+@app.route("/W")
+def receive_W():
+    global status
+    subprocess.Popen("rosrun boat speed_ch_test.py", shell = True)
+    subprocess.Popen("rosrun sensors gps_navigation.py", shell = True)
+
+    while status != 1:
+        pass
+
+    status = 0
+
+
+    return "Launching Rostopic W"
 
 @app.route("/Teleop")
 def receive_teleop():

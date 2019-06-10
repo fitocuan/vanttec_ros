@@ -165,7 +165,7 @@ class Navigate:
         wp_t = []
         choicer , leng = math.modf(msg.layout.data_offset)
         self.choicer = choicer * 10
-        for i in range(leng):
+        for i in range(int(leng)):
             wp_t.append(msg.data[i])
         
         self.wp_array = wp_t
@@ -176,7 +176,7 @@ class Navigate:
 
 
 def main():
-    rospy.init_node('GPS_navigation', anonymous=True)
+    rospy.init_node('gps_navigation', anonymous=True)
     navi = Navigate()
     c = 0
     wp_t = []
@@ -187,7 +187,7 @@ def main():
             lat2 = navi.latitude
             lon2 = navi.longitude
             for i in range(0,len(wp_t),2):
-                if E.choicer == 0:
+                if navi.choicer == 0:
                     wp_lat, wp_lon = navi.gps_point_trans(wp_t[i],wp_t[i+1], jaw, lat2,lon2)
                 else:
                     wp_lat, wp_lon = wp_t[i], wp_t[i+1]

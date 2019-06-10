@@ -17,6 +17,7 @@ import sensor_msgs.point_cloud2 as pc2
 
 import numpy as np
 import math
+import time
 
 import matplotlib.pyplot as plt
 
@@ -35,14 +36,17 @@ class Speed_Challenge:
         self.InitTime = self.current()
         self.ang_change = 0
         self.ang = 0
-        self.start_gps = (0,0)
+        self.start_gps = [0,0]
         self.status = 0
 
         
-        rospy.Subscriber("status", Int32, status_callback)
+        rospy.Subscriber("status", Int32, self.status_callback)
         rospy.Subscriber('/objects_detected', ObjDetectedList, self.callback)
         rospy.Subscriber("ins_pose", Pose2D, self.ins_pose_callback)
         self.path_pub = rospy.Publisher('waypoints', Float32MultiArray, queue_size=10)
+        self.angulo_pub = rospy.Publisher('desired_heading', Float64, queue_size=10)
+        self.d_thrust_pub = rospy.Publisher("desired_thrust", Float64, queue_size=10)
+        self.status_pub = rospy.Publisher("status", Int32, queue_size=10)
 
 
     def status_callback(self,msg):
@@ -66,10 +70,10 @@ class Speed_Challenge:
         J = np.array([[math.cos(self.theta_imu), -1*math.sin(self.theta_imu)],[math.sin(self.theta_imu), math.cos(self.theta_imu)]])
         n = J.dot(p)
 
-        phi1 = math.radians(self.lat)
+        phi1 = math.radians(25.653332)
 
-        latitude2  = self.lat  + (y / EARTH_RADIUOS) * (180 / math.pi)
-        longitude2 = self.lon + (x / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1 * math.pi/180)
+        latitude2  = 25.653332  + (y / EARTH_RADIUOS) * (180 / math.pi)
+        longitude2 = -100.291456 + (x / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1 * math.pi/180)
         
         return latitude2,longitude2
 
@@ -134,25 +138,25 @@ class Speed_Challenge:
             self.desired(self.tx, ang_final)
 
         
-    def waypoints_vuelta(self):
-        if len(self.obj_list) == 1 :
-            if (self.obj_list[0]['color'] == 'blue'):
-                print('Empezo waypoints')
-                v_x = self.obj_list[0]['X']
-                v_y = self.obj_list[0]['Y']
+    def waypoints_vuelta(self,v_x,v_y):
+        
+            print('Empezo waypoints')
+            
 
-                w1 = (v_x,v_y+1.5)
-                w2 = (v_x+1.5,v_y)
-                w3 = (v_x,v_y-1.5)
+            w1 = [v_x,v_y+1.5]
+            w2 = [v_x+1.5,v_y]
+            w3 = [v_x,v_y-1.5]
 
-                obj = Float32MultiArray()
-                obj.layout.data_offset = 8.1
-                obj.data = [(self.gps_point_trans(w1[0],w1[1]))[0],(self.gps_point_trans(w1[0],w1[1]))[1],(self.gps_point_trans(w2[0],w2[1]))[0],...
-                (self.gps_point_trans(w2[0],w2[1]))[1],(self.gps_point_trans(w3[0],w3[1]))[0],(self.gps_point_trans(w3[0],w3[1]))[1],self.start_gps[0],self.start_gps[1]]
 
-                self.path_pub.publish(obj)
+            obj = Float32MultiArray()
+            obj.layout.data_offset = 8.1
+            
 
-                print('Termino waypoints')
+            obj.data = [(self.gps_point_trans(w1[0],w1[1]))[0],(self.gps_point_trans(w1[0],w1[1]))[1],(self.gps_point_trans(w2[0],w2[1]))[0],(self.gps_point_trans(w2[0],w2[1]))[1],(self.gps_point_trans(w3[0],w3[1]))[0],(self.gps_point_trans(w3[0],w3[1]))[1],self.start_gps[0],self.start_gps[1]]
+
+            self.path_pub.publish(obj)
+
+            print('Termino waypoints')
 
 
     def callback(self,data):
@@ -164,7 +168,7 @@ class Speed_Challenge:
         self.tx = 20
         self.desired(self.tx, self.theta_imu)
 
-    def look_finding(self, curr_angle):
+    def look_finding(self):
 
         #.1 = 6 grados
 
@@ -191,55 +195,35 @@ class Speed_Challenge:
         self.tx = 0.5
         self.desired(self.tx, self.theta_imu + .1)
 
+    def desired(self, thrust, heading):
+        self.angulo_pub.publish(heading)
+        self.d_thrust_pub.publish(thrust)
+
 
     
 if __name__ == '__main__':
 
-    rospy.init_node('Speed_Challenge', anonymous=True)
+    rospy.init_node('Speed_Challenge_Test', anonymous=True)
     rate = rospy.Rate(10)
     
     E = Speed_Challenge()
     while E.activated :
-
-        if E.state == 0:
-            obj_list_curr = E.obj_list
-            if len(obj_list_curr) < 2:
-                E.finding_gate()
-            else:
-                sortList = sorted(obj_list_curr, key=lambda k: k['X'])
-                if sortList[0]['X'] < 5 and sortList[1]['X'] < 5 and sortList[0]['class'] == 'bouy' and sortList[1]['class'] == 'bouy':
-                    E.tx = 0
-                    E.desired(E.tx, E.theta_imu)
-                    E.state = 1
-
-
+        print(E.state)
+        
         if E.state == 1:
-            if len(E.obj_list) >= 2:
-                E.punto_medio()
+            obj_list_curr = E.obj_list
+            if len(obj_list_curr) == 1 and obj_list_curr[0]['class'] == 'bouy':
+                v_x = obj_list_curr[0]['X']
+                v_y = obj_list_curr[0]['Y']
+                E.state = 2
             else:
-                initTime = E.curr_time()
-                while len(E.obj_list) < 2:
-                    if E.curr_time() - initTime > 3:
-                        E.state = 2
-                        curr_angle = E.theta_imu
-                        E.gps_start = (E.lat,E.lon)
-                        break
-
-        if E.state == 2:
-            E.straight()
-            time.sleep(3)
-            E.state = 3
-
-        if E.state == 3:
-            if len(E.obj_list) == 1 and E.obj_list[0]['class'] == 'bouy':
-                E.state = 3
-            else:
-                E.look_finding(curr_angle)
+                E.look_finding()
 
                 
-        if E.state == 3:
-            E.waypoints_vuelta()
-            E.state = 4
+        if E.state == 2:
+            E.waypoints_vuelta(v_x,v_y)
+            E.state = 3
+            
         
 
     #rospy.Subscriber("/zed/point_cloud/cloud_registered", PointCloud2, callback_zed_cp)

@@ -180,7 +180,7 @@ class Auto_Nav:
         while True:
             if curr_angle > 0:
                 self.desired(self.tx, self.theta_imu - delta)
-            else
+            else:
                 self.desired(self.tx, self.theta_imu + delta)
 
             total_delta += delta
@@ -217,7 +217,7 @@ if __name__ == '__main__':
         
         if E.state == 1:
             E.test.publish(1)
-            E.enderezar()
+            E.enderezar(curr_angle)
             E.straight()
             time.sleep(3)
             E.state = 2
@@ -228,7 +228,7 @@ if __name__ == '__main__':
             if len(E.obj_list) >= 2:
                 E.state = 3
             else:
-                E.look_finding(curr_angle)
+                E.look_finding()
 
         if E.state == 3:
             E.test.publish(3)
