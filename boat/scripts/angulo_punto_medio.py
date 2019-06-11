@@ -65,15 +65,14 @@ def punto_medio(distances, boxes,Ys):
     
     
     angulo_pub.publish(ang_final)
+
+    self.tx = 10
+        if self.distance < 7:
+            self.tx = 7
+        if self.distance < 0.5:
+            self.tx = 0
     
-    plt.clf()
-    plt.plot(y1,z1, 'go',markersize=5)
-    plt.plot(y2,z2, 'go',markersize=5)
-    plt.plot(0,0,'ro')
-    plt.plot(yc,zc,'r*')
-    plt.axis([-5, 5, 0, 8])
-    plt.pause(0.0001)
-    plt.draw()
+    
     
 points_list = []
     

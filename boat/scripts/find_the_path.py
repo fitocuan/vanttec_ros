@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     E = Find_The_Path()
 
-    while len(E.path_list) <= 5:
+    while len(E.path_list) <= 10:
         pass
         
     sortList = sorted(E.path_list, key=lambda k: k['obj_c'],reverse=True)
@@ -75,12 +75,6 @@ if __name__ == '__main__':
     print(sortList2[0])
     print(sortList2[0]['obj_c'],sortList2[0]['size'] )
 
-    while True:
-        for idx,item in enumerate(E.obj_list):
-            if item['class'] == 'marker':
-                marker_X = item['X']
-                marker_Y = item['Y']
-                break
 
 
 

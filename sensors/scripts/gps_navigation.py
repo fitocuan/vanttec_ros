@@ -78,7 +78,7 @@ class Navigate:
         self.bearing = math.atan2(y_distance, x_distance)
         self.bearing = self.bearing * (-1)
         self.deg = math.degrees(self.bearing)
-        rospy.logwarn("bearing %f", self.deg)
+        #rospy.logwarn("bearing %f", self.deg)
 
         phi1 = math.radians(latitude1)
         phi2 = math.radians(latitude2)
@@ -87,7 +87,7 @@ class Navigate:
         a = math.sin(dphi/2)*math.sin(dphi/2) + math.cos(phi1)*math.cos(phi2)* math.sin(dlam/2)*math.sin(dlam/2)
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         self.distance = 6378137 * c
-        rospy.logwarn("distance %f", self.distance)
+        #rospy.logwarn("distance %f", self.distance)
 
 
     def avoid(self, segment, latitude2, longitud2):
@@ -123,8 +123,8 @@ class Navigate:
         if self.left == 0 and self.right == 0:
             self.tx = 20
             if self.distance < 7:
-                self.tx = 10
-            if self.distance < 0.5:
+                self.tx = 7
+            if self.distance < 0.2:
                 self.tx = 0
                 self.bearing = self.yaw
                 self.navigate = False
@@ -148,8 +148,8 @@ class Navigate:
 
         phi1 = math.radians(lat2)
 
-        latitude2  = lat2  + (y / EARTH_RADIUOS) * (180 / math.pi)
-        longitude2 = lon2 + (x / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1 * math.pi/180)
+        latitude2  = lat2  + (n[0] / EARTH_RADIUOS) * (180 / math.pi)
+        longitude2 = lon2 + (n[1] / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1)
 
         return (latitude2,longitude2)
 
@@ -163,12 +163,15 @@ class Navigate:
 
     def waypoints_callback(self, msg):
         wp_t = []
-        choicer , leng = math.modf(msg.layout.data_offset)
-        self.choicer = choicer * 10
-        for i in range(int(leng)):
+        leng = msg.layout.data_offset
+         
+        for i in range(int(leng)-1):
             wp_t.append(msg.data[i])
         
+        self.choicer = msg.data[-1]
         self.wp_array = wp_t
+
+        print(self.choicer,self.wp_array)
 
         
 
@@ -190,7 +193,8 @@ def main():
                 if navi.choicer == 0:
                     wp_lat, wp_lon = navi.gps_point_trans(wp_t[i],wp_t[i+1], jaw, lat2,lon2)
                 else:
-                    wp_lat, wp_lon = wp_t[i], wp_t[i+1]
+                    wp_lat = wp_t[i]
+                    wp_lon = wp_t[i+1]
 
                 while navi.navigate:
                     

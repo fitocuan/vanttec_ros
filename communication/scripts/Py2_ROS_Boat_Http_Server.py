@@ -105,7 +105,9 @@ def receive_K():
 
 @app.route("/D")
 def receive_D():
-    cmd = '''  rostopic pub /desired_thrust std_msgs/Float64 "data: 10.0" '''
+    cmd = '''  rostopic pub /right_thruster std_msgs/Float64 "data: 6.3" '''
+    subprocess.Popen(cmd, shell = True)
+    cmd = '''  rostopic pub /left_thruster std_msgs/Float64 "data: 5.0" '''
     subprocess.Popen(cmd, shell = True)
     return "Launching Rostopic D" 
     
@@ -117,6 +119,16 @@ def receive_W():
 
     while status != 1:
         pass
+
+    nodo =  subprocess.check_output("rosnode list | grep /gps_navigation", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
+
+
+    nodo =  subprocess.check_output("rosnode list | grep /speed", shell = True)
+    cmd = "rosnode kill " + str(nodo)
+    subprocess.Popen(cmd, shell = True)
+
 
     status = 0
 

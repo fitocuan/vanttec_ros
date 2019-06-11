@@ -220,7 +220,7 @@ if __name__ == '__main__':
             E.enderezar(curr_angle)
             E.straight()
             time.sleep(3)
-            E.state = 2
+            E.state = 4
 
 
         if E.state == 2:

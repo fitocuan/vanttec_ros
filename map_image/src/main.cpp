@@ -89,14 +89,14 @@ public:
 	        	X_marker = msg->objects[i].X*50+12.5;
 	        	Y_marker = msg->objects[i].Y*-50+500;
 	        }
-	        else{
-	        	Xactual=msg->objects[i].X*50+12.5;
-		        Yactual = msg->objects[i].Y*-50+500;
-		        ROS_INFO("Xm: %f",msg->objects[i].X);
-		        ROS_INFO("Ym: %f",msg->objects[i].Y);
-		        ROS_INFO("Xactual: %f",Xactual);
-		        ROS_INFO("Yactual: %f",Yactual);
-		        ROS_INFO("j: %i",i);
+	        
+        	Xactual=msg->objects[i].X*50+12.5;
+	        Yactual = msg->objects[i].Y*-50+500;
+	        ROS_INFO("Xm: %f",msg->objects[i].X);
+	        ROS_INFO("Ym: %f",msg->objects[i].Y);
+	        ROS_INFO("Xactual: %f",Xactual);
+	        ROS_INFO("Yactual: %f",Yactual);
+	        ROS_INFO("j: %i",i);
 
 		        cv::circle( A, cv::Point( Xactual, Yactual ), 12.5, cv::Vec3b(0, 0, 0), -1, 8 );
 	        }

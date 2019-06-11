@@ -6,6 +6,7 @@ from std_msgs.msg import Float64
 from custom_msgs.msg import ObjDetected
 from custom_msgs.msg import ObjDetectedList
 from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import MultiArrayLayout
 from std_msgs.msg import Int32
 
 
@@ -70,10 +71,10 @@ class Speed_Challenge:
         J = np.array([[math.cos(self.theta_imu), -1*math.sin(self.theta_imu)],[math.sin(self.theta_imu), math.cos(self.theta_imu)]])
         n = J.dot(p)
 
-        phi1 = math.radians(25.653332)
+        phi1 = math.radians(self.lat)
 
-        latitude2  = 25.653332  + (y / EARTH_RADIUOS) * (180 / math.pi)
-        longitude2 = -100.291456 + (x / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1 * math.pi/180)
+        latitude2  = self.lat  + (n[0] / EARTH_RADIUOS) * (180 / math.pi)
+        longitude2 = self.lon + (n[1] / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1)
         
         return latitude2,longitude2
 
@@ -149,11 +150,11 @@ class Speed_Challenge:
 
 
             obj = Float32MultiArray()
-            obj.layout.data_offset = 8.1
+            obj.layout.data_offset = 9
             
+            obj.data = [(self.gps_point_trans(w1[0],w1[1]))[0],(self.gps_point_trans(w1[0],w1[1]))[1],(self.gps_point_trans(w2[0],w2[1]))[0],(self.gps_point_trans(w2[0],w2[1]))[1],(self.gps_point_trans(w3[0],w3[1]))[0],(self.gps_point_trans(w3[0],w3[1]))[1],self.start_gps[0],self.start_gps[1],1]
 
-            obj.data = [(self.gps_point_trans(w1[0],w1[1]))[0],(self.gps_point_trans(w1[0],w1[1]))[1],(self.gps_point_trans(w2[0],w2[1]))[0],(self.gps_point_trans(w2[0],w2[1]))[1],(self.gps_point_trans(w3[0],w3[1]))[0],(self.gps_point_trans(w3[0],w3[1]))[1],self.start_gps[0],self.start_gps[1]]
-
+            print(obj.data)
             self.path_pub.publish(obj)
 
             print('Termino waypoints')
@@ -162,7 +163,7 @@ class Speed_Challenge:
     def callback(self,data):
         self.obj_list = []
         for i in range(data.len):
-            self.obj_list.append({'X' : data.objects[i].X, 'Y' : data.objects[i].Y, 'color' : data.objects[i].color, 'class' : data.objects[i].clase})
+            self.obj_list.append({'X' : data.objects[i].X, 'Y' : -1*data.objects[i].Y, 'color' : data.objects[i].color, 'class' : data.objects[i].clase})
 
     def straight(self):
         self.tx = 20
@@ -172,7 +173,7 @@ class Speed_Challenge:
 
         #.1 = 6 grados
 
-        self.tx = 15
+        self.tx = 1
         delta = .1
 
         if self.ang == 1:
@@ -208,21 +209,26 @@ if __name__ == '__main__':
     
     E = Speed_Challenge()
     while E.activated :
-        print(E.state)
         
-        if E.state == 1:
+        
+        if E.state == 0:
+            print(E.state)
             obj_list_curr = E.obj_list
             if len(obj_list_curr) == 1 and obj_list_curr[0]['class'] == 'bouy':
                 v_x = obj_list_curr[0]['X']
                 v_y = obj_list_curr[0]['Y']
-                E.state = 2
+                E.start_gps = (E.lat,E.lon)
+                E.state = 1
             else:
                 E.look_finding()
+                time.sleep(2)
+
 
                 
-        if E.state == 2:
+        if E.state == 1:
+            print(E.state)
             E.waypoints_vuelta(v_x,v_y)
-            E.state = 3
+            E.state = 2
             
         
 
