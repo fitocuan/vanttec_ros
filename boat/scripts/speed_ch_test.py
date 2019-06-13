@@ -63,6 +63,7 @@ class Speed_Challenge:
 
     def ins_pose_callback(self, data):
         self.theta_imu = data.theta
+        #self.theta_imu = 0
         self.lat = data.x
         self.lon = data.y
 
@@ -73,8 +74,8 @@ class Speed_Challenge:
 
         phi1 = math.radians(self.lat)
 
-        latitude2  = self.lat  + (n[0] / EARTH_RADIUOS) * (180 / math.pi)
-        longitude2 = self.lon + (n[1] / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1)
+        latitude2  = self.lat  + (n[1] / EARTH_RADIUOS) * (180 / math.pi)
+        longitude2 = self.lon + (n[0] / EARTH_RADIUOS) * (180 / math.pi) / math.cos(phi1)
         
         return latitude2,longitude2
 

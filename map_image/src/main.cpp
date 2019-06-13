@@ -1,3 +1,5 @@
+
+
 #include "ros/ros.h"
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -7,6 +9,7 @@
 #include "custom_msgs/ObjDetectedList.h"
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/MultiArrayLayout.h"
+#include "planning.h"
 
 
 #include <opencv2/opencv.hpp>
@@ -14,12 +17,14 @@
 #include <fstream>
 #include <string>
 
-#include "planning.h"
+
 
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
-using namespace std;
 using namespace cv;
+using namespace std;
+
+
 
 int length;
 
@@ -105,7 +110,7 @@ public:
 	        //S_INFO("Xactual: %f",Xactual);
 	        //S_INFO("Yactual: %f",Yactual);
 	        //boxes[i]=(msg->objects[i].x,msg->objects[i].y,msg->objects[i].w,msg->objects[i].h);//boxes.append([data.objects[i].x,data.objects[i].y,data.objects[i].w,data.objects[i].h]);
-	     }   
+	        
 
 
 		//string input_path = "/home/fitocuan/catkin_ws/src/map_image/maps/map1.png";
@@ -160,8 +165,9 @@ public:
 		astar.a_star_search(map.get_world(), path);
 		std::stack<int> path_to_send = map.trace_path(path);
 
-		if (path.empty()) 
+		if (path.empty()){
 			cout << "No path was found" << endl;
+		}
 		else {
 			int count = 0;
 			std_msgs::Float32MultiArray path_msg;

@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "planning.h"
 
 using namespace Planner;

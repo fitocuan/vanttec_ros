@@ -67,6 +67,7 @@ class Navigate:
         self.latitude = gps.x
         self.longitude = gps.y
         self.yaw = gps.theta
+        #self.yaw = 0
 
     def get_degrees_and_distance_to_gps_coords(self, latitude2, longitud2):
         latitude1 = self.latitude
@@ -78,6 +79,7 @@ class Navigate:
         self.bearing = math.atan2(y_distance, x_distance)
         self.bearing = self.bearing * (-1)
         self.deg = math.degrees(self.bearing)
+        print self.deg
         #rospy.logwarn("bearing %f", self.deg)
 
         phi1 = math.radians(latitude1)
@@ -87,6 +89,7 @@ class Navigate:
         a = math.sin(dphi/2)*math.sin(dphi/2) + math.cos(phi1)*math.cos(phi2)* math.sin(dlam/2)*math.sin(dlam/2)
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         self.distance = 6378137 * c
+        print self.distance
         #rospy.logwarn("distance %f", self.distance)
 
 
@@ -197,9 +200,9 @@ def main():
                     wp_lon = wp_t[i+1]
 
                 while navi.navigate:
-                    
+                    print(i,i+1)
+                    print(navi.choicer)
                     print(wp_lat, wp_lon)
-                    print(wp_t[i],wp_t[i+1])
                     navi.avoid(navi.image, wp_lat, wp_lon)
                     if wp_t != navi.wp_array:
                         break

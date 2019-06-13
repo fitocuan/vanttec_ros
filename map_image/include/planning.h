@@ -8,6 +8,7 @@
 #include <stack> 
 #include <iostream>
 
+
 // Image Settings
 #define IM_WIDTH  1000 
 #define IM_HEIGHT 1000

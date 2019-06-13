@@ -103,10 +103,10 @@ class Auto_Nav:
         
 
         #self.angulo_pub.publish(ang_final)
-        self.tx = 10
+        self.tx = 17
         if self.distance < 7:
-            self.tx = 7
-        if self.distance < 0.5:
+            self.tx = 12
+        if self.distance < 0.2:
             self.tx = 0
 
         #self.d_thrust_pub.publish(self.tx)
@@ -174,7 +174,7 @@ class Auto_Nav:
 
     def enderezar(self,curr_angle):
 
-        self.tx = 0.5
+        self.tx = 5
         delta = 0.1
         total_delta = 0
         while True:
@@ -220,7 +220,7 @@ if __name__ == '__main__':
             E.enderezar(curr_angle)
             E.straight()
             time.sleep(3)
-            E.state = 4
+            E.state = 2
 
 
         if E.state == 2:
