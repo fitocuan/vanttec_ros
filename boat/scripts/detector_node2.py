@@ -166,9 +166,24 @@ class Detection_Node:
                     ind = p1+p2*zed_cam_size
 
                     d_list = self.points_list[ind-15:ind+15]
-                    d_list = [item[0] for item in d_list]
-                    #print(d_list)
-                    dist = np.mean(d_list)
+
+
+                    
+                    d_list2 = []
+                    for j in d_list:
+                        if str(j[0]) != 'nan':
+                            d_list2.append(j[0])
+
+                    d_list = d_list2
+                    
+
+                    print(d_list)
+                    if len(d_list) != 0:
+                        dist = np.mean(d_list)
+                    else:
+                        dist = 'nan'
+
+                    print(dist)
                     #print(d_list)
                     #print(ind)
                     #print(np.mean(self.points_list[ind-15:ind+15]))
@@ -176,7 +191,7 @@ class Detection_Node:
 
                     #dist = np.mean(self.points_list[ind][0])
 
-                    if (dist < .30):
+                    if (dist < .30 and dist > 15):
                         diststring = "OUT OF RANGE"
                     else:
                         diststring = str(dist) + " m"
@@ -187,7 +202,7 @@ class Detection_Node:
                 
 
                     
-                    if self.points_list[(p1+p2*zed_cam_size)][0] < 10 and self.points_list[(p1+p2*zed_cam_size)][0] != 'nan' and color != '':
+                    if str(dist) != 'nan':
                         obj = ObjDetected()
                         #print(p1,p2)
                         obj.x = x

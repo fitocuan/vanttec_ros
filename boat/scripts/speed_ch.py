@@ -27,7 +27,7 @@ class Speed_Challenge:
     def __init__(self):
         self.obj_list = []
         self.activated = True
-        self.state = 0
+        self.state = 3
         self.theta_imu = 0
         self.lat = 0
         self.lon = 0
@@ -136,23 +136,23 @@ class Speed_Challenge:
         
     def waypoints_vuelta(self):
         if len(self.obj_list) == 1 :
-            if (self.obj_list[0]['color'] == 'blue'):
-                print('Empezo waypoints')
-                v_x = self.obj_list[0]['X']
-                v_y = self.obj_list[0]['Y']
+            #if (self.obj_list[0]['color'] == 'blue'):
+            print('Empezo waypoints')
+            v_x = self.obj_list[0]['X']
+            v_y = self.obj_list[0]['Y']
+            radio = 2
+            w1 = (v_x,v_y+radio)
+            w2 = (v_x+radio,v_y)
+            w3 = (v_x,v_y-radio)
 
-                w1 = (v_x,v_y+1.5)
-                w2 = (v_x+1.5,v_y)
-                w3 = (v_x,v_y-1.5)
+            obj = Float32MultiArray()
+            obj.layout.data_offset = 8.1
+            obj.data = [(self.gps_point_trans(w1[0],w1[1]))[0],(self.gps_point_trans(w1[0],w1[1]))[1],(self.gps_point_trans(w2[0],w2[1]))[0],...
+            (self.gps_point_trans(w2[0],w2[1]))[1],(self.gps_point_trans(w3[0],w3[1]))[0],(self.gps_point_trans(w3[0],w3[1]))[1],self.start_gps[0],self.start_gps[1]]
 
-                obj = Float32MultiArray()
-                obj.layout.data_offset = 8.1
-                obj.data = [(self.gps_point_trans(w1[0],w1[1]))[0],(self.gps_point_trans(w1[0],w1[1]))[1],(self.gps_point_trans(w2[0],w2[1]))[0],...
-                (self.gps_point_trans(w2[0],w2[1]))[1],(self.gps_point_trans(w3[0],w3[1]))[0],(self.gps_point_trans(w3[0],w3[1]))[1],self.start_gps[0],self.start_gps[1]]
+            self.path_pub.publish(obj)
 
-                self.path_pub.publish(obj)
-
-                print('Termino waypoints')
+            print('Termino waypoints')
 
 
     def callback(self,data):
@@ -232,14 +232,15 @@ if __name__ == '__main__':
 
         if E.state == 3:
             if len(E.obj_list) == 1 and E.obj_list[0]['class'] == 'bouy':
-                E.state = 3
+                E.state = 4
             else:
                 E.look_finding(curr_angle)
 
                 
-        if E.state == 3:
+        if E.state == 4:
             E.waypoints_vuelta()
-            E.state = 4
+            print("fin")
+            E.state = 5
         
 
     #rospy.Subscriber("/zed/point_cloud/cloud_registered", PointCloud2, callback_zed_cp)

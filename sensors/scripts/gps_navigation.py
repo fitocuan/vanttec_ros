@@ -77,7 +77,7 @@ class Navigate:
         y_distance = math.sin(longitud_distance) * math.cos(latitude2)
         x_distance = math.cos(latitude1) * math.sin(latitude2) - math.sin(latitude1) * math.cos(latitude2) * math.cos(longitud_distance)
         self.bearing = math.atan2(y_distance, x_distance)
-        self.bearing = self.bearing * (-1)
+        #self.bearing = self.bearing * (-1)
         self.deg = math.degrees(self.bearing)
         print self.deg
         #rospy.logwarn("bearing %f", self.deg)
@@ -127,7 +127,7 @@ class Navigate:
             self.tx = 20
             if self.distance < 7:
                 self.tx = 7
-            if self.distance < 0.2:
+            if self.distance < 0.5:
                 self.tx = 0
                 self.bearing = self.yaw
                 self.navigate = False
@@ -210,7 +210,7 @@ def main():
                 if wp_t != navi.wp_array:
                         break
                 navi.navigate = True
-                #rospy.logwarn("Arrived")
+                rospy.logwarn("Arrived")
 
         navi.pub_status.publish(1)
 

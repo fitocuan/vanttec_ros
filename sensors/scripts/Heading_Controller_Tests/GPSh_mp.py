@@ -44,7 +44,7 @@ class Test:
         self.bearing = math.atan2(y_distance, x_distance)
         self.bearing = self.bearing * (-1)
         self.deg = math.degrees(self.bearing)
-        rospy.logwarn("bearing %f", self.deg)
+        #rospy.logwarn("bearing %f", self.deg)
 
         phi1 = math.radians(latitude1)
         phi2 = math.radians(latitude2)
@@ -53,9 +53,9 @@ class Test:
         a = math.sin(dphi/2)*math.sin(dphi/2) + math.cos(phi1)*math.cos(phi2)* math.sin(dlam/2)*math.sin(dlam/2)
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         self.distance = 6378137 * c
-        rospy.logwarn("distance %f", self.distance)
+        #rospy.logwarn("distance %f", self.distance)
 
-        tx = 15
+        tx = 10
         if self.distance < 5:
             tx = 7
         if self.distance < 2:
@@ -85,16 +85,19 @@ def main():
     rospy.init_node('GPSh_mp', anonymous=True)
     t = Test()
     while t.testing: 
-        t.get_degrees_and_distance_to_gps_coords(25.653369, -100.291289)
+        t.get_degrees_and_distance_to_gps_coords(29.190181, -81.050237)
     t.testing = True
+    rospy.logwarn("Arrived")
     while t.testing: 
-        t.get_degrees_and_distance_to_gps_coords(25.653308, -100.291491)
+        t.get_degrees_and_distance_to_gps_coords(29.190098, -81.050242)
     t.testing = True
+    rospy.logwarn("Arrived")
     while t.testing:
-        t.get_degrees_and_distance_to_gps_coords(25.653308, -100.291356)
+        t.get_degrees_and_distance_to_gps_coords(29.190156, -81.050209)
     t.testing = True
+    rospy.logwarn("Arrived")
     while t.testing:
-        t.get_degrees_and_distance_to_gps_coords(25.653345, -100.291161)
+        t.get_degrees_and_distance_to_gps_coords(29.190125, -81.050283)
     rospy.logwarn("Finished")
     rospy.spin()
 

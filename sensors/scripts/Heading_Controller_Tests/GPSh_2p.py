@@ -42,9 +42,9 @@ class Test:
         y_distance = math.sin(longitud_distance) * math.cos(latitude2)
         x_distance = math.cos(latitude1) * math.sin(latitude2) - math.sin(latitude1) * math.cos(latitude2) * math.cos(longitud_distance)
         self.bearing = math.atan2(y_distance, x_distance)
-        self.bearing = self.bearing * (-1)
+        #self.bearing = self.bearing * (-1)
         self.deg = math.degrees(self.bearing)
-        rospy.logwarn("bearing %f", self.deg)
+        #rospy.logwarn("bearing %f", self.deg)
 
         phi1 = math.radians(latitude1)
         phi2 = math.radians(latitude2)
@@ -53,7 +53,7 @@ class Test:
         a = math.sin(dphi/2)*math.sin(dphi/2) + math.cos(phi1)*math.cos(phi2)* math.sin(dlam/2)*math.sin(dlam/2)
         c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
         self.distance = 6378137 * c
-        rospy.logwarn("distance %f", self.distance)
+        #rospy.logwarn("distance %f", self.distance)
 
         tx = 15
         if self.distance < 5:
@@ -85,10 +85,10 @@ def main():
     rospy.init_node('GPSh_2p', anonymous=True)
     t = Test()
     while t.testing: 
-        t.get_degrees_and_distance_to_gps_coords(25.653332, -100.291456)
+        t.get_degrees_and_distance_to_gps_coords(29.152460,-81.017083)
     t.testing = True
     while t.testing:
-        t.get_degrees_and_distance_to_gps_coords(25.653300, -100.291145)
+        t.get_degrees_and_distance_to_gps_coords(29.152449,-81.017251)
     rospy.logwarn("Finished")
     rospy.spin()
 
