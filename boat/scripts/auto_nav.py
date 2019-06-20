@@ -60,13 +60,16 @@ class Auto_Nav:
 
         distances = []
         Ys = []
+        clases = []
         for i in range(len(self.obj_list)):
             distances.append(self.obj_list[i]['X'])
             Ys.append(self.obj_list[i]['Y'])
+            clases.append(self.obj_list[i]['class'])
 
         idx1 = np.argsort(distances)[0]
         idx2 = np.argsort(distances)[1]
         
+
         z1 = distances[idx1]
         
         y1 = -1*Ys[idx1]
@@ -77,6 +80,7 @@ class Auto_Nav:
         
         zc = min([z1,z2]) + abs(z1 - z2)/2
         yc = min([y1,y2]) + abs(y1 - y2)/2
+        
         self.distance = zc
         offset = .55
         
@@ -176,7 +180,8 @@ class Auto_Nav:
         print("a")
         self.obj_list = []
         for i in range(data.len):
-            self.obj_list.append({'X' : data.objects[i].X + 0.55, 'Y' : data.objects[i].Y, 'color' : data.objects[i].color, 'class' : data.objects[i].clase})
+            if str(data.objects[i].clase) == 'marker':
+                self.obj_list.append({'X' : data.objects[i].X + 0.55, 'Y' : data.objects[i].Y, 'color' : data.objects[i].color, 'class' : data.objects[i].clase})
 
 
     def desired(self, thrust, heading):

@@ -17,15 +17,15 @@ class evadir_objectos:
         self.depth = np.zeros((560,1000,3),np.uint8)
         self.img2 = np.zeros((560,1000,3),np.uint8)
         rospy.Subscriber("/zed/depth/depth_registered", Image, self.callback_zed_depth)
-        #rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_img)
+        rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_img)
 
         self.pub = rospy.Publisher('/obstacles', String, queue_size=10)
         #rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_depth)
 
 
 
-    #def callback_zed_img(self,img):
-    #    self.img2 = self.bridge.imgmsg_to_cv2(img)
+    def callback_zed_img(self,img):
+        self.img2 = self.bridge.imgmsg_to_cv2(img)
 
     def callback_zed_depth(self,img):
         img = self.bridge.imgmsg_to_cv2(img)
@@ -47,11 +47,11 @@ class evadir_objectos:
 
         #self.img2 = self.img2[y:y+h,x:x+w]
         img = img[y:y+h,x:x+w]
-        #img2 = self.img2
+        img2 = self.img2
         img = np.nan_to_num(img)
 
         #ret,img2 = cv2.threshold(img,1.7,255,cv2.THRESH_BINARY)
-        img = cv2.inRange(img,1.5,2)
+        img = cv2.inRange(img,1.5,2.5)
         img = cv2.bitwise_not(img)
 
         
@@ -68,19 +68,19 @@ class evadir_objectos:
         c4 = img[y:y+h,x+w/4*3:x+w/4*4]
         cv2.rectangle(img, (x,y),(x+(w/4),y+h), (255,255,0), 2)
 
-        w_c1 = 1 if round(cv2.countNonZero(c1)/(H*W/4.0),3) < 0.9 else 0
-        w_c2 = 1 if round(cv2.countNonZero(c2)/(H*W/4.0),3) < 0.9 else 0
-        w_c3 = 1 if round(cv2.countNonZero(c3)/(H*W/4.0),3) < 0.9 else 0
-        w_c4 = 1 if round(cv2.countNonZero(c4)/(H*W/4.0),3) < 0.9 else 0
+        w_c1 = 1 if round(cv2.countNonZero(c1)/(H*W/4.0),3) < 0.7 else 0
+        w_c2 = 1 if round(cv2.countNonZero(c2)/(H*W/4.0),3) < 0.7 else 0
+        w_c3 = 1 if round(cv2.countNonZero(c3)/(H*W/4.0),3) < 0.7 else 0
+        w_c4 = 1 if round(cv2.countNonZero(c4)/(H*W/4.0),3) < 0.7 else 0
 
         ret = str(w_c1)+str(w_c2)+str(w_c3)+str(w_c4)
 
         print(ret)
         self.pub.publish(ret)
 
-        #cv2.imshow("a", img)
-        #cv2.imshow("aa", img2)
-        #cv2.waitKey(3)
+        cv2.imshow("a", img)
+        cv2.imshow("aa", img2)
+        cv2.waitKey(3)
         self.depth = img
         
 

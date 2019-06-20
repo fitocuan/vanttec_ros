@@ -169,21 +169,30 @@ class Detection_Node:
 
 
                     
-                    d_list2 = []
+                    d_list2_Y = []
                     for j in d_list:
-                        if str(j[0]) != 'nan':
-                            d_list2.append(j[0])
+                        if str(j[0]) != 'nan' and str(j[0]) != 'inf':
+                            d_list2_Y.append(j[0])
 
-                    d_list = d_list2
+                    d_list2_X = []
+                    for j in d_list:
+                        if str(j[1]) != 'nan' and str(j[1]) != 'inf':
+                            d_list2_X.append(j[1])
+
+                    d_list = d_list2_Y
+                    d_list_x = d_list2_X
                     
 
-                    print(d_list)
+                    if len(d_list_x) != 0:
+                        dist_x = np.mean(d_list_x)
+                    else:
+                        dist_x = 'nan'
+
                     if len(d_list) != 0:
                         dist = np.mean(d_list)
                     else:
                         dist = 'nan'
 
-                    print(dist)
                     #print(d_list)
                     #print(ind)
                     #print(np.mean(self.points_list[ind-15:ind+15]))
@@ -202,15 +211,15 @@ class Detection_Node:
                 
 
                     
-                    if str(dist) != 'nan':
+                    if str(dist) != 'nan' and str(dist_x) != 'nan':
                         obj = ObjDetected()
                         #print(p1,p2)
                         obj.x = x
                         obj.y = y
                         obj.h = h
                         obj.w = w
-                        obj.X = self.points_list[(p1+p2*zed_cam_size)][0]
-                        obj.Y = self.points_list[(p1+p2*zed_cam_size)][1]
+                        obj.X = dist
+                        obj.Y = dist_x
                         obj.color = color
                         obj.clase = 'bouy' if cls_ids[i] == 0 else 'marker'
                         len_list += 1
@@ -237,10 +246,10 @@ class Detection_Node:
                 cv2.putText(frame, text, (10, det.get_h() - ((i * 20) + 20)), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
             # Show current frame
-            #cv2.imshow("Frame", frame)
+            cv2.imshow("Frame", frame)
             #print(self.depth)
         
-            #cv2.waitKey(3)
+            cv2.waitKey(3)
             rate.sleep()        
         
 

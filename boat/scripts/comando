@@ -3,5 +3,6 @@
 python detector_node.py --config ~/vantec-config/yolo3-vantec.cfg --weights ~/vantec-config/yolo3-vantec.weights --classes ~/vantec-config/obj.names 
 
 
-roslaunch zed_wrapper zed.launch svo_file:=/home/fitocuan/Documents/ZED/HD720_SN22290_16-25-58.svo
+roslaunch zed_wrapper zed.launch svo_file:=/home/fitocuan/Documents/ZED/dia1-2.svo
 
+rosbag record -a 

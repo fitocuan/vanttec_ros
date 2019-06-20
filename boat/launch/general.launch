@@ -13,7 +13,7 @@
     <node pkg="boat" type="detector_node2.py" name="detector" />
     
 
-    <!--node pkg="communication" type="Py2_ROS_Boat_Http_Server.py" name="status" /-->
+    <node pkg="communication" type="Py2_ROS_Boat_Http_Server.py" name="status" />
 
     <!--<node pkg="map_image" type="evadir_objetos.py" name="evadir_objectos" />-->
 

@@ -218,7 +218,7 @@ if __name__ == '__main__':
             if len(obj_list_curr) == 1 and obj_list_curr[0]['class'] == 'bouy':
                 v_x = obj_list_curr[0]['X']
                 v_y = obj_list_curr[0]['Y']
-                E.start_gps = (E.lat,E.lon)
+                E.start_gps = [E.lat,E.lon]
                 E.state = 1
             else:
                 E.look_finding()

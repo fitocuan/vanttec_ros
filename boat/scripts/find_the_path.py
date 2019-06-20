@@ -24,7 +24,7 @@ class Find_The_Path:
         rospy.Subscriber("path_waypoints", Float32MultiArray, self.path_callback)
         rospy.Subscriber('/objects_detected', ObjDetectedList, self.objs_callback)
 
-
+        self.path_pub = rospy.Publisher('waypoints', Float32MultiArray, queue_size=10)
         self.angulo_pub = rospy.Publisher('desired_heading', Float64, queue_size=10)
         self.d_thrust_pub = rospy.Publisher("desired_thrust", Float64, queue_size=10)
 
@@ -67,13 +67,27 @@ if __name__ == '__main__':
 
     sortList2[0]['path'][-2:] = dst_marker_prom
     #print(dst_marker)
-
+    '''
     for x in sortList: print(x['obj_c'], x['size'])
     print('------------------------------------------------')
     for x in sortList2: print(x['obj_c'], x['size'])
     print('------------------------------------------------')
     print(sortList2[0])
     print(sortList2[0]['obj_c'],sortList2[0]['size'] )
+    '''
+
+    obj = Float32MultiArray()
+    sortList2.append(1)
+    obj.layout.data_offset = len(sortList2)
+    obj.data = list(sortList2)
+    E.path_pub.publish(obj)
+
+    while 
+
+
+
+
+
 
 
 
