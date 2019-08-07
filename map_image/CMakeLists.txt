@@ -13,6 +13,9 @@ sensor_msgs
 rospy
 std_msgs
 custom_msgs
+velodyne_pointcloud
+pcl_conversions
+pcl_ros
 Eigen3 REQUIRED
 OpenCV REQUIRED
 
@@ -113,7 +116,11 @@ find_package(Boost REQUIRED COMPONENTS program_options filesystem)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+   INCLUDE_DIRS
+   CATKIN_DEPENDS roscpp
+   pcl_conversions
+   pcl_ros
+
 #  LIBRARIES map_image
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
@@ -230,6 +237,14 @@ add_executable ( astar src/main.cpp )
 
 target_include_directories ( astar PRIVATE ${include} )
 target_link_libraries ( astar  world path heuristic ${Boost_LIBRARIES} ${OpenCV_LIBS} ${catkin_LIBRARIES})
+
+add_executable ( velo src/velo_pc.cpp )
+target_link_libraries(velo ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable ( velo_ransac src/velo_ransac.cpp )
+target_link_libraries(velo_ransac ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+
+
 
 
 ##target_link_libraries (map_image Eigen3::Eigen)

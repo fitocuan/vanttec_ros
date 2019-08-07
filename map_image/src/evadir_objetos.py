@@ -18,6 +18,7 @@ class evadir_objectos:
         self.img2 = np.zeros((560,1000,3),np.uint8)
         rospy.Subscriber("/zed/depth/depth_registered", Image, self.callback_zed_depth)
         rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_img)
+        rospy.Subscriber("/velodyne_points", Image, self.callback_zed_img)
 
         self.pub = rospy.Publisher('/obstacles', String, queue_size=10)
         #rospy.Subscriber("/zed/rgb/image_rect_color", Image, self.callback_zed_depth)
